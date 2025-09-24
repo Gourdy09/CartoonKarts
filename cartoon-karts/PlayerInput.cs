@@ -1,0 +1,23 @@
+using Godot;
+using System;
+
+public partial class PlayerInput : Node
+{
+	public static PlayerInput Instance { get; private set; }
+	public float throttle { get; private set; }
+	public float steer { get; private set; }
+	public bool switchCameraForward { get; private set; }
+
+	public override void _Ready()
+	{
+		Instance = this;
+	}
+
+	// Poll for Inputs
+	public override void _PhysicsProcess(double delta)
+	{
+		throttle = Input.GetActionStrength("throttle");
+		steer = Input.GetAxis("steer_left", "steer_right");
+		switchCameraForward = Input.IsActionJustPressed("switch_camera_forward");
+	}
+}
