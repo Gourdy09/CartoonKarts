@@ -6,9 +6,9 @@ public partial class Gearbox : Node
     private CarEngine engine;
     private RigidBody3D chassis; // Reference to get vehicle speed
     private int currentGear = 0; // Start in first gear
-    private float[] gearRatios = {1f, 1.3f, 1.9f, 2.1f, 2.6f}; // 5-speed transmission
-    private float[] shiftUpSpeeds = {15f, 25f, 40f, 60f}; // km/h shift points
-    private float[] shiftDownSpeeds = {10f, 20f, 35f, 55f}; // km/h downshift points
+    private float[] gearRatios = {1f, 1.2f, 1.4f, 1.6f, 2f}; // 5-speed transmission
+    private float[] shiftUpSpeeds = {15f, 25f, 40f, 60f, 999f}; // km/h shift points
+    private float[] shiftDownSpeeds = {0f, 10f, 20f, 35f, 55f}; // km/h downshift points
     private float reverseGearRatio = 4.0f;
     private float shiftDelay = 0.3f; // Seconds between shifts
     private float timeSinceLastShift = 0f;
@@ -73,7 +73,6 @@ public partial class Gearbox : Node
             {
                 currentGear++;
                 timeSinceLastShift = 0f;
-                GD.Print($"Shifted up to gear {currentGear + 1}");
             }
         }
         // Shift down conditions
@@ -84,7 +83,6 @@ public partial class Gearbox : Node
             {
                 currentGear--;
                 timeSinceLastShift = 0f;
-                GD.Print($"Shifted down to gear {currentGear + 1}");
             }
         }
     }
