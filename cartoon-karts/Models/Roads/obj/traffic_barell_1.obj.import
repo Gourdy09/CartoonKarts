@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://bd1mj0wfcufk5"
+path="res://.godot/imported/traffic_barell_1.obj-e4008b83a5de996277cd2f732bdabd32.mesh"
+
+[deps]
+
+files=["res://.godot/imported/traffic_barell_1.obj-e4008b83a5de996277cd2f732bdabd32.mesh"]
+
+source_file="res://Models/Roads/obj/traffic_barell_1.obj"
+dest_files=["res://.godot/imported/traffic_barell_1.obj-e4008b83a5de996277cd2f732bdabd32.mesh", "res://.godot/imported/traffic_barell_1.obj-e4008b83a5de996277cd2f732bdabd32.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

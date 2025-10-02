@@ -1,6 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://bstconqxe8omw"]
+[gd_scene load_steps=6 format=3 uid="uid://bstconqxe8omw"]
 
 [ext_resource type="PackedScene" uid="uid://c384nwaumk6gg" path="res://Scenes/car.tscn" id="1_flqcu"]
+[ext_resource type="PackedScene" uid="uid://b48r0f2hcgei3" path="res://road_1.tscn" id="2_b00oh"]
+[ext_resource type="PackedScene" uid="uid://bahbflkt2k4yq" path="res://road_1_curve_2.tscn" id="3_u6fsj"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_flqcu"]
 size = Vector3(1000, 1, 1000)
@@ -17,12 +19,48 @@ shadow_enabled = true
 [node name="Car" parent="." instance=ExtResource("1_flqcu")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 
-[node name="StaticBody3D" type="StaticBody3D" parent="."]
+[node name="Ground" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
 mesh = SubResource("BoxMesh_flqcu")
 skeleton = NodePath("../..")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
 shape = SubResource("BoxShape3D_flqcu")
+
+[node name="Road1" parent="." instance=ExtResource("2_b00oh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+
+[node name="Road2" parent="." instance=ExtResource("2_b00oh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -12)
+
+[node name="Road3" parent="." instance=ExtResource("2_b00oh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -24)
+
+[node name="Road5" parent="." instance=ExtResource("2_b00oh")]
+transform = Transform3D(1, 0, 0, 0, 0.965926, -0.258819, 0, 0.258819, 0.965926, 0, 3.73089, -45.5168)
+
+[node name="Road6" parent="." instance=ExtResource("2_b00oh")]
+transform = Transform3D(1, 0, 0, 0, 0.965926, -0.258819, 0, 0.258819, 0.965926, 0, 6.677, -56.5168)
+
+[node name="Road7" parent="." instance=ExtResource("2_b00oh")]
+transform = Transform3D(1, 0, 0, 0, 0.965926, -0.258819, 0, 0.258819, 0.965926, 0, 0.78, -34.517)
+
+[node name="Road8" parent="." instance=ExtResource("2_b00oh")]
+transform = Transform3D(1, 0, 0, 0, 0.965926, -0.258819, 0, 0.258819, 0.965926, 0, 12.2946, -77.5168)
+
+[node name="Road9" parent="." instance=ExtResource("2_b00oh")]
+transform = Transform3D(1, 0, 0, 0, 0.965926, -0.258819, 0, 0.258819, 0.965926, 0, 15.2407, -88.5168)
+
+[node name="Road11" parent="." instance=ExtResource("2_b00oh")]
+transform = Transform3D(1, 0, 0, 0, 0.993383, -0.11485, 0, 0.11485, 0.993383, 0, 17.4576, -100.238)
+
+[node name="Road12" parent="." instance=ExtResource("2_b00oh")]
+transform = Transform3D(1, 0, 0, 0, 0.999943, -0.0107161, 0, 0.0107161, 0.999943, 0, 18.1873, -112.064)
+
+[node name="Road10" parent="." instance=ExtResource("2_b00oh")]
+transform = Transform3D(1, 0, 0, 0, 0.965926, -0.258819, 0, 0.258819, 0.965926, 0, 9.34369, -66.517)
+
+[node name="Road1_Curve2" parent="." instance=ExtResource("3_u6fsj")]
+transform = Transform3D(0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, 0.707107, 5.96571, 18.2478, -137.502)

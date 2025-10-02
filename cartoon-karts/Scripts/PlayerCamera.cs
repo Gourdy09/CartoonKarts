@@ -30,7 +30,7 @@ public partial class PlayerCamera : Camera3D
         }
     }
 
-    public override void _Process(double delta)
+    public override void _PhysicsProcess(double delta)
     {
         if (target == null) return;
 

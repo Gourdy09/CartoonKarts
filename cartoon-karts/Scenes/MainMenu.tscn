@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://xpy22vfxqdrb"]
 
-[ext_resource type="Script" uid="uid://cpthos3gwqt76" path="res://Scenes/PlayButton.cs" id="1_tt5f1"]
+[ext_resource type="Script" uid="uid://cpthos3gwqt76" path="res://Scripts/PlayButton.cs" id="1_tt5f1"]
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3

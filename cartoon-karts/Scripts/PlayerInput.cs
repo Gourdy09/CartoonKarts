@@ -9,6 +9,7 @@ public partial class PlayerInput : Node
 	public float brake { get; private set; }
 	public float steer { get; private set; }
 	public bool switchCameraForward { get; private set; }
+	public bool restart { get; private set; }
 
 	public override void _Ready()
 	{
@@ -23,5 +24,11 @@ public partial class PlayerInput : Node
 		brake = Input.GetActionStrength("brake");
 		steer = Input.GetAxis("steer_left", "steer_right");
 		switchCameraForward = Input.IsActionJustPressed("switch_camera_forward");
+		restart = Input.IsActionJustPressed("restart");
+
+		if (restart)
+		{
+			GetTree().ChangeSceneToFile("Scenes/Track1.tscn");
+		}
 	}
 }
