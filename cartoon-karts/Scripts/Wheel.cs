@@ -9,21 +9,35 @@ public partial class Wheel : RigidBody3D
 
     [Export] public bool isFrontWheel = false;
     [Export] public float maxSteerAngle = 30f;
-    [Export] public float lateralGrip = 120f;
-    [Export] public float rollingResistance = 0.8f; // Reduced for better coasting
+    [Export] public float lateralGrip = 300f; // Increased from 120 for better grip
+    [Export] public float rollingResistance = 0.8f;
     [Export] public float brakeForce = 80f;
     [Export] public float steerSpeed = 120f;
     [Export] public float returnSpeed = 90f;
     [Export] public float speedSensitiveSteeringMin = 0.4f;
     [Export] public float speedSensitiveSteeringThreshold = 40f;
-    [Export] public float suspensionForce = 8000f;
-    [Export] public float suspensionDamping = 800f;
-    [Export] public float restLength = 0.3f;
-    [Export] public float minimumRollingSpeed = 0.5f; // Below this speed, reduce rolling resistance
-    [Export] public float airResistanceCoefficient = 0.005f; // Reduced air resistance
+    
+    // IMPROVED SUSPENSION PARAMETERS
+    [Export] public float suspensionForce = 1500f; // Much softer for smooth ride
+    [Export] public float suspensionDamping = 600f; // Moderate damping
+    [Export] public float restLength = 0.4f; // Longer travel for better bump absorption
+    [Export] public float maxCompressionForce = 3500f; // Lower cap for gentler response
+    [Export] public float groundedThreshold = 0.1f; // How compressed before considered "grounded"
+    
+    // ANTI-ROLL PARAMETERS
+    [Export] public float antiRollForce = 2000f; // Resistance to body roll
+    [Export] public float antiRollDamping = 400f; // Damping for roll motion
+    
+    [Export] public float minimumRollingSpeed = 0.5f;
+    [Export] public float airResistanceCoefficient = 0.005f;
 
     private float steerAngle = 0;
     private Vector3 lastPosition;
+    private float lastCompression = 0f; // Track previous compression for damping calculation
+    private bool wasGrounded = false; // Track if we were grounded last frame
+    
+    // Track opposite wheel for anti-roll
+    private Wheel oppositeWheel = null;
 
     public override void _Ready()
     {
@@ -32,15 +46,29 @@ public partial class Wheel : RigidBody3D
         groundingRaycast = GetNode<RayCast3D>("RayCast3D");
         isFrontWheel = Name.Equals("FL") || Name.Equals("FR");
         lastPosition = GlobalPosition;
+        
+        // Find opposite wheel for anti-roll bar simulation
+        if (Name.Equals("FL"))
+            oppositeWheel = GetParent().GetNode<Wheel>("FR");
+        else if (Name.Equals("FR"))
+            oppositeWheel = GetParent().GetNode<Wheel>("FL");
+        else if (Name.Equals("BL"))
+            oppositeWheel = GetParent().GetNode<Wheel>("BR");
+        else if (Name.Equals("BR"))
+            oppositeWheel = GetParent().GetNode<Wheel>("BL");
     }
 
     public override void _PhysicsProcess(double delta)
     {
-        // Apply custom suspension force
-        ApplySuspension(delta);
+        // Store previous compression before updating
+        StorePreviousCompression();
+        
+        // Apply custom suspension force FIRST
+        bool isGrounded = ApplySuspension(delta);
 
         if (!groundingRaycast.IsColliding())
         {
+            wasGrounded = false;
             return;
         }
 
@@ -48,7 +76,7 @@ public partial class Wheel : RigidBody3D
         Vector3 right = GlobalTransform.Basis.X;
         Vector3 up = GlobalTransform.Basis.Y;
 
-        // STEERING - Works in ALL conditions (neutral, drive, reverse)
+        // STEERING
         if (isFrontWheel)
         {
             HandleSteering(delta, up, ref localForward);
@@ -57,16 +85,20 @@ public partial class Wheel : RigidBody3D
         // TRACTION SYSTEM
         ApplyTraction(right, localForward);
 
-        // ENGINE TORQUE - Only apply when not in neutral
-        ApplyDrivetrainTorque(localForward);
+        // ENGINE TORQUE - Only apply when properly grounded
+        if (isGrounded)
+        {
+            ApplyDrivetrainTorque(localForward);
+        }
 
         // BRAKING
         ApplyBraking();
 
-        // IMPROVED ROLLING RESISTANCE - Allow better coasting
+        // ROLLING RESISTANCE
         ApplyRollingResistance(localForward);
 
         lastPosition = GlobalPosition;
+        wasGrounded = isGrounded;
     }
 
     private void HandleSteering(double delta, Vector3 up, ref Vector3 localForward)
@@ -74,7 +106,7 @@ public partial class Wheel : RigidBody3D
         float steerInput = PlayerInput.Instance.steer;
         
         // Speed-sensitive steering
-        float speed = chassis.LinearVelocity.Length() * 3.6f; // km/h
+        float speed = chassis.LinearVelocity.Length() * 3.6f;
         float speedFactor = 1.0f;
         if (speed > speedSensitiveSteeringThreshold)
         {
@@ -83,12 +115,9 @@ public partial class Wheel : RigidBody3D
         }
         
         float effectiveMaxSteerAngle = maxSteerAngle * speedFactor;
-        
-        // Progressive steering response
         float steerInputCurved = steerInput * Mathf.Abs(steerInput) * 0.8f + steerInput * 0.2f;
         float targetAngle = effectiveMaxSteerAngle * steerInputCurved;
 
-        // Always respond to steering input regardless of engine state
         if (Mathf.Abs(steerInput) > 0.01f)
         {
             steerAngle = Mathf.MoveToward(steerAngle, targetAngle, steerSpeed * (float)delta);
@@ -98,7 +127,6 @@ public partial class Wheel : RigidBody3D
             steerAngle = Mathf.MoveToward(steerAngle, 0, returnSpeed * (float)delta);
         }
 
-        // Apply steering rotation
         localForward = localForward.Rotated(up, Mathf.DegToRad(steerAngle));
     }
 
@@ -111,28 +139,30 @@ public partial class Wheel : RigidBody3D
         float lateralSpeed = lateralVel.Length();
         float forwardSpeed = forwardVel.Length();
         
-        // Progressive grip loss with slip angle
-        float optimalSlipAngle = 8f; // degrees
+        // More aggressive grip curve for less sliding
+        float optimalSlipAngle = 6f; // Reduced from 8 for earlier grip
         float currentSlipAngle = Mathf.RadToDeg(Mathf.Atan2(lateralSpeed, Mathf.Max(forwardSpeed, 0.1f)));
         
         float gripMultiplier = 1.0f;
         if (currentSlipAngle > optimalSlipAngle)
         {
             float excessSlip = currentSlipAngle - optimalSlipAngle;
-            gripMultiplier = Mathf.Max(0.2f, 1.0f - (excessSlip / 30f));
+            // More gradual falloff for controlled slides
+            gripMultiplier = Mathf.Max(0.4f, 1.0f - (excessSlip / 40f));
         }
 
-        // Apply lateral grip force (tire friction) - this works regardless of engine state
+        // Apply stronger lateral grip force
         Vector3 gripForce = -lateralVel * lateralGrip * gripMultiplier;
         ApplyForce(gripForce);
+        
+        // Additional: Apply grip to chassis for better stability
+        chassis.ApplyForce(gripForce * 0.3f, GlobalPosition - chassis.GlobalPosition);
     }
 
     private void ApplyDrivetrainTorque(Vector3 localForward)
     {
-        // Get engine reference to check if it's in neutral
         CarEngine engine = GetParent().GetNode<CarEngine>("Engine");
         
-        // Only apply drivetrain torque when NOT in neutral
         if (!engine.isNeutral)
         {
             float wheelTorque = 0;
@@ -144,10 +174,8 @@ public partial class Wheel : RigidBody3D
                 case "BR": wheelTorque = differential.wheelTorques[3]; break;
             }
 
-            // Apply torque in the direction the wheel is pointing
             ApplyForce(localForward * wheelTorque);
         }
-        // In neutral, no engine torque is applied, allowing free rolling
     }
 
     private void ApplyBraking()
@@ -169,45 +197,90 @@ public partial class Wheel : RigidBody3D
         Vector3 forwardVel = wheelVelocity.Project(localForward);
         float forwardSpeed = forwardVel.Length();
         
-        // Speed-dependent rolling resistance - less resistance at low speeds for better coasting
         float speedBasedRollingResistance = rollingResistance;
         if (forwardSpeed < minimumRollingSpeed)
         {
-            // Reduce rolling resistance at very low speeds to allow coasting to a stop naturally
             speedBasedRollingResistance *= (forwardSpeed / minimumRollingSpeed) * 0.3f;
         }
         
         Vector3 resistanceForce = -forwardVel * speedBasedRollingResistance;
-        
-        // Air resistance increases with speed squared, but keep it minimal
         float airResistance = forwardSpeed * forwardSpeed * airResistanceCoefficient;
         resistanceForce -= forwardVel.Normalized() * airResistance;
         
         ApplyForce(resistanceForce);
     }
 
-    private void ApplySuspension(double delta)
+    private bool ApplySuspension(double delta)
     {
         Vector3 suspensionDirection = -GlobalTransform.Basis.Y;
         
-        if (groundingRaycast.IsColliding())
+        if (!groundingRaycast.IsColliding())
         {
-            Vector3 hitPoint = groundingRaycast.GetCollisionPoint();
-            float currentLength = (GlobalPosition - hitPoint).Length();
-            float compression = restLength - currentLength;
-            
-            if (compression > 0)
-            {
-                // Spring force
-                Vector3 springForce = suspensionDirection * compression * suspensionForce;
-                
-                // Damping force based on suspension velocity
-                Vector3 suspensionVelocity = (GlobalPosition - lastPosition) / (float)delta;
-                float dampingVelocity = suspensionVelocity.Dot(suspensionDirection);
-                Vector3 dampingForce = -suspensionDirection * dampingVelocity * suspensionDamping;
-                
-                ApplyForce(springForce + dampingForce);
-            }
+            lastCompression = 0f;
+            return false;
         }
+
+        Vector3 hitPoint = groundingRaycast.GetCollisionPoint();
+        float currentLength = (GlobalPosition - hitPoint).Length();
+        float compression = restLength - currentLength;
+        
+        // Calculate compression velocity for damping
+        float compressionVelocity = (compression - lastCompression) / (float)delta;
+        lastCompression = compression;
+        
+        // Wheel is grounded if raycast is hitting (even with no compression)
+        bool isGrounded = true;
+        
+        // Only apply suspension when compressed
+        if (compression > 0)
+        {
+            // Linear spring force for consistent, smooth response
+            float springForce = compression * suspensionForce;
+            
+            // Velocity-based damping (resist both compression and extension)
+            float dampingForce = -compressionVelocity * suspensionDamping;
+            
+            // ANTI-ROLL BAR: Transfer force between opposite wheels
+            float antiRollTorque = 0f;
+            if (oppositeWheel != null)
+            {
+                float compressionDifference = compression - oppositeWheel.lastCompression;
+                
+                // Anti-roll force proportional to compression difference
+                antiRollTorque = compressionDifference * antiRollForce;
+                
+                // Anti-roll damping based on difference in compression velocity
+                float oppositeCompressionVel = (oppositeWheel.lastCompression - oppositeWheel.GetPreviousCompression()) / (float)delta;
+                float rollVelocity = compressionVelocity - oppositeCompressionVel;
+                antiRollTorque += rollVelocity * antiRollDamping;
+            }
+            
+            // Combine forces
+            float totalForce = springForce + dampingForce + antiRollTorque;
+            
+            // Cap maximum force to prevent launches
+            totalForce = Mathf.Clamp(totalForce, 0f, maxCompressionForce);
+            
+            // Apply force upward along suspension direction
+            Vector3 suspensionForceVector = suspensionDirection * totalForce;
+            ApplyForce(suspensionForceVector);
+            
+            // Additional: Apply downward force to chassis to balance
+            chassis.ApplyForce(-suspensionForceVector, GlobalPosition - chassis.GlobalPosition);
+        }
+        
+        return isGrounded;
+    }
+    
+    // Helper to get previous compression for anti-roll calculation
+    private float previousCompression = 0f;
+    private float GetPreviousCompression()
+    {
+        return previousCompression;
+    }
+    
+    private void StorePreviousCompression()
+    {
+        previousCompression = lastCompression;
     }
 }

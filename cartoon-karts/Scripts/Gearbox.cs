@@ -6,7 +6,7 @@ public partial class Gearbox : Node
     private CarEngine engine;
     private RigidBody3D chassis; // Reference to get vehicle speed
     private int currentGear = 0; // Start in first gear
-    private float[] gearRatios = {1f, 1.2f, 1.4f, 1.6f, 2f}; // 5-speed transmission
+    private float[] gearRatios = {2f, 2.2f, 2.4f, 2.6f, 3f}; // 5-speed transmission
     private float[] shiftUpSpeeds = {25f, 45f, 90f, 125f, 999f}; // km/h shift points
     private float[] shiftDownSpeeds = {0f, 10f, 20f, 35f, 55f}; // km/h downshift points
     private float reverseGearRatio = 4.0f;
