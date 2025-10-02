@@ -1,0 +1,28 @@
+[gd_scene load_steps=4 format=3 uid="uid://bstconqxe8omw"]
+
+[ext_resource type="PackedScene" uid="uid://c384nwaumk6gg" path="res://Scenes/car.tscn" id="1_flqcu"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_flqcu"]
+size = Vector3(1000, 1, 1000)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_flqcu"]
+size = Vector3(1000, 1, 1000)
+
+[node name="Track" type="Node3D"]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.965926, -0.0669873, -0.25, 0.25, 0.491482, 0.834234, 0.0669873, -0.868308, 0.491482, 0, 3, 6)
+shadow_enabled = true
+
+[node name="Car" parent="." instance=ExtResource("1_flqcu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D"]
+mesh = SubResource("BoxMesh_flqcu")
+skeleton = NodePath("../..")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+shape = SubResource("BoxShape3D_flqcu")

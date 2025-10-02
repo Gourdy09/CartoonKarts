@@ -1,0 +1,32 @@
+[gd_scene load_steps=2 format=3 uid="uid://xpy22vfxqdrb"]
+
+[ext_resource type="Script" uid="uid://cpthos3gwqt76" path="res://Scenes/PlayButton.cs" id="1_tt5f1"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="RichTextLabel" type="RichTextLabel" parent="."]
+layout_mode = 0
+offset_right = 1151.0
+offset_bottom = 160.0
+theme_override_font_sizes/normal_font_size = 72
+bbcode_enabled = true
+text = "Cartoon Karts"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PlayButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 435.0
+offset_top = 307.0
+offset_right = 717.0
+offset_bottom = 417.0
+theme_override_font_sizes/font_size = 36
+text = "Play Game"
+script = ExtResource("1_tt5f1")
+ScenePath = "res://Scenes/Track1.tscn"

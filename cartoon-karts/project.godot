@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Cartoon Karts"
-run/main_scene="uid://bstconqxe8omw"
+run/main_scene="uid://xpy22vfxqdrb"
 config/features=PackedStringArray("4.4", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
