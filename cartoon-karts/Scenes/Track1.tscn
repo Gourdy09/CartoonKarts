@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://bstconqxe8omw"]
+[gd_scene load_steps=7 format=3 uid="uid://bstconqxe8omw"]
 
 [ext_resource type="PackedScene" uid="uid://c384nwaumk6gg" path="res://Scenes/car.tscn" id="1_flqcu"]
 
@@ -11,13 +11,16 @@ size = Vector3(1000, 1, 1000)
 [sub_resource type="Curve3D" id="Curve3D_flqcu"]
 closed = true
 _data = {
-"points": PackedVector3Array(2.64253, 0, -1.21696, -2.64253, 0, 1.21696, -0.172636, 0, 4.45919, 0, 0, 1.94713, 0, 0, -1.94713, -4.62322, 0, 1.15602, -1.91236, 0, 1.77328, 1.91236, 0, -1.77328, -2.53701, 0, -5.17215, -1.94713, 0, -0.625862, 1.94713, 0, 0.625862, 3.02622, 0, -9.62273, -1.2865, 0, -2.26006, 1.2865, 0, 2.26006, 9.73686, 0, -3.39887, 1.49512, 0, 0.208621, -1.49512, 0, -0.208621, 8.93715, 0, 4.49396, 1.11265, 0, 1.35604, -1.11265, 0, -1.35604, 4.48657, 0, 6.1977, 1.04311, 0, 1.42558, -1.04311, 0, -1.42558, 5.63398, 0, -2.6687, 1.18219, 0, -1.94713, -1.18219, 0, 1.94713, 0.00121528, 0, -4.44198),
+"points": PackedVector3Array(2.64253, 0, -1.21696, -2.64253, 0, 1.21696, -0.172636, 0, 4.45919, 0, 0, 1.94713, 0, 0, -1.94713, -3.53224, -1.01821, 1.99489, -1.91236, 0, 1.77328, 1.91236, 0, -1.77328, -2.53701, 0, -5.17215, -1.94713, 0, -0.625862, 1.94713, 0, 0.625862, 3.02622, 0, -9.62273, -1.2865, 0, -2.26006, 1.2865, 0, 2.26006, 10.0814, 1.79424, -4.84743, 1.76375, -0.573807, -1.4011, -1.76375, 0.573807, 1.4011, 10.2481, 0.78158, 4.17779, 1.11265, 0, 1.35604, -1.11265, 0, -1.35604, 6.10574, -0.533551, 4.99768, 1.04311, 0, 1.42558, -1.04311, 0, -1.42558, 5.63398, 0, -2.6687, 1.18219, 0, -1.94713, -1.18219, 0, 1.94713, 0.00121528, 0, -4.44198),
 "tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0)
 }
 point_count = 9
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_flqcu"]
 albedo_color = Color(0.0846899, 0.0846899, 0.0846899, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_b00oh"]
+albedo_color = Color(0.485703, 0.485704, 0.485703, 1)
 
 [node name="Track" type="Node3D"]
 
@@ -29,7 +32,7 @@ shadow_enabled = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 12, 0)
 
 [node name="Ground" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -114, 0)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
 mesh = SubResource("BoxMesh_flqcu")
@@ -41,14 +44,14 @@ shape = SubResource("BoxShape3D_flqcu")
 [node name="Path3D" type="Path3D" parent="."]
 curve = SubResource("Curve3D_flqcu")
 
-[node name="CSGPolygon3D" type="CSGPolygon3D" parent="."]
+[node name="Road" type="CSGPolygon3D" parent="."]
 transform = Transform3D(100, 0, 0, 0, 100, 0, 0, 0, 100, 0, 0, 0)
 use_collision = true
 polygon = PackedVector2Array(0, 0, 0, 0.1, 0.5, 0.1, 0.5, 0)
 mode = 2
 path_node = NodePath("../Path3D")
 path_interval_type = 0
-path_interval = 0.1
+path_interval = 1.0
 path_simplify_angle = 0.0
 path_rotation = 2
 path_rotation_accurate = false
@@ -57,3 +60,20 @@ path_continuous_u = true
 path_u_distance = 1.0
 path_joined = true
 material = SubResource("StandardMaterial3D_flqcu")
+
+[node name="OuterEdge" type="CSGPolygon3D" parent="."]
+transform = Transform3D(100, 0, 0, 0, 100, 0, 0, 0, 100, 0, 6, 0)
+use_collision = true
+polygon = PackedVector2Array(-0.005, 0, -0.003, 0.07, 0, 0.07, 0.05, 0)
+mode = 2
+path_node = NodePath("../Path3D")
+path_interval_type = 0
+path_interval = 1.0
+path_simplify_angle = 0.0
+path_rotation = 2
+path_rotation_accurate = false
+path_local = false
+path_continuous_u = true
+path_u_distance = 1.0
+path_joined = false
+material = SubResource("StandardMaterial3D_b00oh")

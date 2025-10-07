@@ -155,8 +155,10 @@ public partial class Wheel : RigidBody3D
         }
 
         Vector3 gripForce = -lateralVel * lateralGrip * gripMultiplier;
-        ApplyForce(gripForce);
-        chassis.ApplyForce(gripForce * 0.3f, GlobalPosition - chassis.GlobalPosition);
+        ApplyCentralForce(gripForce);
+        
+        // Apply grip force to chassis at its center of mass to avoid pitching
+        chassis.ApplyCentralForce(gripForce * 0.3f);
     }
 
     private void ApplyDrivetrainTorque(Vector3 localForward)
@@ -174,7 +176,7 @@ public partial class Wheel : RigidBody3D
                 case "BR": wheelTorque = differential.wheelTorques[3]; break;
             }
 
-            ApplyForce(localForward * wheelTorque);
+            ApplyCentralForce(localForward * wheelTorque);
         }
     }
 
@@ -187,7 +189,7 @@ public partial class Wheel : RigidBody3D
             Vector3 brakeDirection = -wheelVelocity.Normalized();
             float brakeEffectiveness = Mathf.Clamp(wheelVelocity.Length() / 15f, 0.1f, 1.0f);
             Vector3 totalBrakeForce = brakeDirection * brakeForce * brakeInput * brakeEffectiveness;
-            ApplyForce(totalBrakeForce);
+            ApplyCentralForce(totalBrakeForce);
         }
     }
 
@@ -207,7 +209,7 @@ public partial class Wheel : RigidBody3D
         float airResistance = forwardSpeed * forwardSpeed * airResistanceCoefficient;
         resistanceForce -= forwardVel.Normalized() * airResistance;
         
-        ApplyForce(resistanceForce);
+        ApplyCentralForce(resistanceForce);
     }
 
     private bool ApplySmoothSuspension(double delta)
@@ -253,45 +255,39 @@ public partial class Wheel : RigidBody3D
         // Apply forces based on SMOOTHED compression
         if (compression > 0)
         {
-            // MASS-SCALED FORCES - Scale with wheel and chassis mass
-            float totalMass = Mass + (chassis.Mass / 4f); // Each wheel supports 1/4 of chassis
-            float massScale = totalMass / 32f; // Reference mass (25kg chassis + 7kg wheel) / 4
+            // Spring force based on smoothed compression
+            float springForce = compression * suspensionForce;
             
-            // Spring force based on smoothed compression - SCALED BY MASS
-            float springForce = compression * suspensionForce * massScale;
+            // Damping based on smoothed velocity
+            float dampingForce = -compressionVelocity * suspensionDamping;
             
-            // Damping based on smoothed velocity - SCALED BY MASS
-            float dampingForce = -compressionVelocity * suspensionDamping * massScale;
-            
-            // ANTI-ROLL BAR - SCALED BY MASS
+            // ANTI-ROLL BAR
             float antiRollTorque = 0f;
             if (oppositeWheel != null)
             {
                 float compressionDifference = compression - oppositeWheel.smoothedCompression;
-                antiRollTorque = compressionDifference * antiRollForce * massScale;
+                antiRollTorque = compressionDifference * antiRollForce;
                 
                 float oppositeCompressionVel = (oppositeWheel.smoothedCompression - oppositeWheel.previousCompression) / (float)delta;
                 float rollVelocity = compressionVelocity - oppositeCompressionVel;
-                antiRollTorque += rollVelocity * antiRollDamping * massScale;
+                antiRollTorque += rollVelocity * antiRollDamping;
             }
             
             float totalForce = springForce + dampingForce + antiRollTorque;
-            totalForce = Mathf.Clamp(totalForce, 0f, maxCompressionForce * massScale);
+            totalForce = Mathf.Clamp(totalForce, 0f, maxCompressionForce);
             
             Vector3 suspensionForceVector = suspensionDirection * totalForce;
-            ApplyForce(suspensionForceVector);
+            ApplyCentralForce(suspensionForceVector);
             
-            // CHASSIS STABILIZATION - Keep chassis level over bumps
-            // This is the "magic" that makes bumps feel ignored
+            // Apply equal and opposite force to chassis
             Vector3 chassisOffset = GlobalPosition - chassis.GlobalPosition;
-            Vector3 targetChassisForce = -suspensionForceVector * 1.2f; // Slightly stronger on chassis
-            chassis.ApplyForce(targetChassisForce, chassisOffset);
+            chassis.ApplyForce(-suspensionForceVector, chassisOffset);
             
-            // Additional: Dampen chassis vertical velocity for smoother ride - SCALED BY MASS
+            // Dampen excessive chassis vertical velocity
             float chassisVerticalVel = chassis.LinearVelocity.Dot(Vector3.Up);
-            if (Mathf.Abs(chassisVerticalVel) > 0.1f)
+            if (Mathf.Abs(chassisVerticalVel) > 0.5f)
             {
-                Vector3 dampingForceVec = -Vector3.Up * chassisVerticalVel * chassisStabilizationForce * chassis.Mass * (float)delta;
+                Vector3 dampingForceVec = -Vector3.Up * chassisVerticalVel * 800f * (float)delta;
                 chassis.ApplyCentralForce(dampingForceVec);
             }
         }

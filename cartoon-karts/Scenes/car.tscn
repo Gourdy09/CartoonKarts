@@ -11,7 +11,7 @@
 [ext_resource type="Script" uid="uid://nbvt5uqtjmlf" path="res://Scripts/GearDisplay.cs" id="8_argdw"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_24jkt"]
-size = Vector3(1.23132, 0.460342, 3.79492)
+size = Vector3(1.4, 0.791992, 3.8)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_aqss3"]
 albedo_color = Color(1, 0, 0, 1)
@@ -27,11 +27,9 @@ radius = 0.4
 [node name="Chassis" type="RigidBody3D" parent="Player"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
 mass = 25.0
-center_of_mass_mode = 1
-center_of_mass = Vector3(0, -0.3, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Player/Chassis"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.075012, 0.19651, -0.0742188)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0664062, 0)
 shape = SubResource("BoxShape3D_24jkt")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Player/Chassis"]
@@ -56,9 +54,6 @@ script = ExtResource("4_td361")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.15, 0, -1.1)
 mass = 7.0
 script = ExtResource("4_06lh1")
-lateralGrip = 150.0
-rollingResistance = 3.0
-steerSpeed = 80.0
 speedSensitiveSteeringMin = 1.0
 antiRollForce = 5000.0
 
@@ -82,9 +77,6 @@ linear_limit_z/softness = 1.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.15, 0, -1.1)
 mass = 7.0
 script = ExtResource("4_06lh1")
-lateralGrip = 150.0
-rollingResistance = 3.0
-steerSpeed = 80.0
 speedSensitiveSteeringMin = 1.0
 antiRollForce = 5000.0
 
@@ -108,9 +100,6 @@ linear_limit_z/softness = 1.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.15, 0, 1)
 mass = 7.0
 script = ExtResource("4_06lh1")
-lateralGrip = 150.0
-rollingResistance = 3.0
-steerSpeed = 80.0
 speedSensitiveSteeringMin = 1.0
 antiRollForce = 5000.0
 
@@ -134,9 +123,6 @@ linear_limit_z/softness = 1.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.15, 0, 1)
 mass = 7.0
 script = ExtResource("4_06lh1")
-lateralGrip = 150.0
-rollingResistance = 3.0
-steerSpeed = 80.0
 speedSensitiveSteeringMin = 1.0
 antiRollForce = 5000.0
 

@@ -24,8 +24,8 @@ public partial class CarTuningMenu : Control
         {"RollingResistance", 3f},
         {"BrakeForce", 80f},
         {"SuspensionForce", 1500f},
-        {"SuspensionDamping", 600f},
-        {"AntiRollForce", 2000f},
+        {"SuspensionDamping", 400f},
+        {"AntiRollForce", 1000f},
         {"ChassisMass", 25f},
         {"WheelMass", 7f}
     };
