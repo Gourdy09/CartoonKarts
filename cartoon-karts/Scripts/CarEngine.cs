@@ -7,7 +7,12 @@ public partial class CarEngine : Node
 	[Export] public float engineTorque { private set; get; } = 0;
 	[Export] public bool isReversing { private set; get; } = false;
 	[Export] public bool isNeutral { private set; get; } = false;
-	private float maxEngineRPM = 10000;
+	
+	// Tunable parameters - can be modified by tuning menu
+	[Export] public float maxEngineRPM = 10000;
+	[Export] public float customPeakTorque = 500f;
+	[Export] public float customPeakTorqueRPM = 8000f;
+	
 	private float engineRPMPickup = 1;
 	private float reverseMultiplier = 0.4f;
 	private float idleRPM = 900f;
@@ -46,7 +51,8 @@ public partial class CarEngine : Node
 		}
 		else
 		{
-			calculateEngineTorque(engineRPM, 500, 50, .7f, 8000, 2000);
+			// Use custom tuning values
+			calculateEngineTorque(engineRPM, customPeakTorque, 50, .7f, customPeakTorqueRPM, 2000);
 			
 			// Apply reverse multiplier if reversing
 			if (isReversing)

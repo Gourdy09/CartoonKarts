@@ -32,24 +32,24 @@ public partial class Differential : Node
         // Distribute torque based on drivetrain type
         if (driveTrainType.Equals("FWD"))
         {
-            wheelTorques[0] = gearbox.drivetrainTorque * (0.5f - 0.5f * bias);
-            wheelTorques[1] = gearbox.drivetrainTorque * (0.5f + 0.5f * bias);
+            wheelTorques[0] = gearbox.drivetrainTorque * (0.5f + 0.5f * bias);
+            wheelTorques[1] = gearbox.drivetrainTorque * (0.5f - 0.5f * bias);
             wheelTorques[2] = 0;
             wheelTorques[3] = 0;
         }
         else if (driveTrainType.Equals("AWD"))
         {
-            wheelTorques[0] = gearbox.drivetrainTorque / 2 * (0.5f - 0.5f * bias);
-            wheelTorques[1] = gearbox.drivetrainTorque / 2 * (0.5f + 0.5f * bias);
-            wheelTorques[2] = gearbox.drivetrainTorque / 2 * (0.5f - 0.5f * bias);
-            wheelTorques[3] = gearbox.drivetrainTorque / 2 * (0.5f + 0.5f * bias);
+            wheelTorques[0] = gearbox.drivetrainTorque / 2 * (0.5f + 0.5f * bias);
+            wheelTorques[1] = gearbox.drivetrainTorque / 2 * (0.5f - 0.5f * bias);
+            wheelTorques[2] = gearbox.drivetrainTorque / 2 * (0.5f + 0.5f * bias);
+            wheelTorques[3] = gearbox.drivetrainTorque / 2 * (0.5f - 0.5f * bias);
         }
         else if (driveTrainType.Equals("RWD"))
         {
             wheelTorques[0] = 0;
             wheelTorques[1] = 0;
-            wheelTorques[2] = gearbox.drivetrainTorque * (0.5f - 0.5f * bias);
-            wheelTorques[3] = gearbox.drivetrainTorque * (0.5f + 0.5f * bias);
+            wheelTorques[2] = gearbox.drivetrainTorque * (0.5f + 0.5f * bias);
+            wheelTorques[3] = gearbox.drivetrainTorque * (0.5f - 0.5f * bias);
         }
     }
 }
